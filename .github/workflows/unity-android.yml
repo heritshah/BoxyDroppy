@@ -10,22 +10,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Free up space
+      - name: Free up disk space
         run: |
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc
 
-      - name: Setup Unity
-        uses: game-ci/unity-actions@v2
+      - name: Cache Unity
+        uses: actions/cache@v3
         with:
-          version: 2019.4.40f1
-          targetPlatform: Android
+          path: ~/.cache/unity
+          key: ${{ runner.os }}-unity
 
-      - name: Build
+      - name: Build Android
         uses: game-ci/unity-builder@v2
         with:
           targetPlatform: Android
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
 
       - name: Upload APK
         uses: actions/upload-artifact@v3
